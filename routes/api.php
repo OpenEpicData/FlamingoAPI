@@ -19,6 +19,7 @@ Route::group(['middleware' => 'api'], function () {
     });
 
     Route::group(['prefix' => 'auth'], function () {
+        Route::post('verify-email', 'AuthController@VerifyEmail');
         Route::post('login', 'AuthController@login');
         Route::post('register', 'AuthController@register');
 

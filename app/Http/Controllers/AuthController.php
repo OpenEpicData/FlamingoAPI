@@ -12,11 +12,17 @@ use Illuminate\Support\{
 
 class AuthController extends Controller
 {
-  /**
-   * login api
-   *
-   * @return \Illuminate\Http\Response
-   */
+
+  public function VerifyEmail(Request $request)
+  {
+    $request->validate([
+      'email' => 'required|string|email',
+    ]);
+
+    $user = User::where('email', $request->email)->get();
+    return $user->isEmpty() ? abort(404, 'Resource not found') : $user;
+  }
+
   public function login(Request $request)
   {
     $request->validate([
@@ -44,17 +50,12 @@ class AuthController extends Controller
     ]);
   }
 
-  /**
-   * Register api
-   *
-   * @return \Illuminate\Http\Response
-   */
   public function register(Request $request)
   {
     $request->validate([
       'name' => 'required|string',
       'email' => 'required|string|email|unique:users',
-      'password' => 'required|string|confirmed'
+      'password' => 'required|string'
     ]);
 
     $user = User::create([
@@ -65,26 +66,16 @@ class AuthController extends Controller
     ]);
 
     return response()->json([
-      'message' => 'Successfully created user!',
-      'token' => $user->createToken('FlamingoAPI')->accessToken
+      'token_type' => 'Bearer',
+      'access_token' => $user->createToken('FlamingoAPI')->accessToken
     ], 201);
   }
 
-  /**
-   * Get the authenticated User
-   *
-   * @return [json] user object
-   */
   public function user(Request $request)
   {
     return response()->json($request->user());
   }
 
-  /**
-   * Logout user (Revoke the token)
-   *
-   * @return [string] message
-   */
   public function logout(Request $request)
   {
     $request->user()->token()->revoke();
