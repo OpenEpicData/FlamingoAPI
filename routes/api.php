@@ -11,8 +11,20 @@
 |
 */
 
-Route::middleware('api')->get('/', function () {
-    return ([
-        'gitHubSources'=> 'https://github.com/OpenEpicData/FlamingoAPI'
-    ]);
+Route::group(['middleware' => 'api'], function () {
+    Route::get('/', function () {
+        return ([
+            'gitHubSources' => 'https://github.com/OpenEpicData/FlamingoAPI'
+        ]);
+    });
+
+    Route::group(['prefix' => 'auth'], function () {
+        Route::post('login', 'AuthController@login');
+        Route::post('register', 'AuthController@register');
+
+        Route::group(['middleware' => 'auth:api'], function () {
+            Route::post('logout', 'AuthController@logout');
+            Route::get('user', 'AuthController@user');
+        });
+    });
 });
